@@ -86,7 +86,7 @@ const Post = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Ocurrió un error al guardar la reserva'
+        text: 'los datos estan duplicados o ya no coincide con los datos'
       });
     }
   };
