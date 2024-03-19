@@ -1,15 +1,28 @@
-import { useState, useEffect } from "react";
-import { Link, } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { API_URL } from "../Autenticacion/constanst";
 import { useAuth } from "../Autenticacion/AutProvider";
 
+
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
-  const [role, setRole] = useState(""); 
-  const [, setErrorResponse] = useState("");
+  const [role, setRole] = useState<string | undefined>(undefined);
+  const [, setErrorResponse] = useState<string>("");
 
+  useEffect(() => {
+    async function fetchUserRole() {
+      try {
+        const userRole = await auth.getRol();
+        setRole(userRole);
+      } catch (error) {
+        setErrorResponse("Ocurrió un error al obtener el rol del usuario.");
+      }
+    }
 
-  async function handleSignOut(e: React.MouseEvent<HTMLAnchorElement>) {
+    fetchUserRole();
+  }, [auth]);
+
+  async function handleSignOut(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     try {
       const response = await fetch(`${API_URL}/signout`, {
@@ -20,49 +33,21 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         }
       });
 
-     
-      
       if (response.ok) {
         auth.signOut();
         window.location.href = "/";
-        
       }
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error(error);
     }
   }
-
-  useEffect(() => {
-    async function fetchUserRole() {
-      try {
-        const response = await fetch(`${API_URL}/login`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}` // Añadido token de autorización
-          }
-        });
-  
-        if (response.ok) {
-          const json = await response.json();
-          setRole(json.role); // Actualizado el estado del rol
-        } else {
-          setErrorResponse("Ocurrió un error al obtener el rol del usuario.");
-        }
-      } catch (error) {
-        setErrorResponse("Hubo un problema de red. Inténtalo de nuevo más tarde.");
-      }
-    }
-  
-    fetchUserRole(); // Llamar a la función para obtener el rol del usuario al cargar el componente
-  }, []);
 
   return (
     <>
       <header className="principal">
         <div className="container-pri">
           <Link to="/" className="inicio">
-            Parking<span className="span">Location.</span>{" "}
+            Parking<span className="span">Location.</span>
           </Link>
         </div>
         <nav>
@@ -70,21 +55,22 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
             <li>
               <Link to="/Perfil">Perfil</Link>
             </li>
-            {role === "usuario" && ( 
-              <li>
-                <Link to="/Dashboard">Mapa navegacion</Link>
-              </li>
-            )}
-            {role === "cliente" && ( 
-              <li>
-                <Link to="/Posts">Creacion parqueadero</Link>
-              </li>
-            )}
             <li>
-              <a href="/" onClick={handleSignOut}>
-                Salir
-              </a>
+              <Link to="/Dashboard">Mapa navegación</Link>
             </li>
+            <li>
+              <Link to="/Posts">Creación parqueadero</Link>
+            </li>
+            <li>
+              <div>
+                <button className="p-14 hover:text-blue-500" onClick={handleSignOut}>Salir</button>
+              </div>
+            </li>
+            {role && (
+              <li>
+                Rol: {role}
+              </li>
+            )}
           </ul>
         </nav>
       </header>
@@ -93,3 +79,4 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     </>
   );
 }
+

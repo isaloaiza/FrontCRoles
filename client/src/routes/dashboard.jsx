@@ -12,11 +12,11 @@ import Footer from "../components/Footer";
 
 
 const Dashboard = () => {
-  const { getUser } = useAuth();
+  // Obtener la información del usuario desde el contexto de autenticación
+  const { user, getRol } = useAuth();
   const [parqueaderos, setParqueaderos] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParqueaderoId, setSelectedParqueaderoId] = useState(null);
-  const auth = useAuth();
 
   useEffect(() => {
     fetchParqueaderos();
@@ -26,6 +26,7 @@ const Dashboard = () => {
     try {
       const res = await axios.get(config.apiUrl);
       setParqueaderos(res.data);
+      
     } catch (error) {
       console.error("Error fetching parqueaderos:", error);
     }
@@ -40,8 +41,10 @@ const Dashboard = () => {
     <PortalLayout>
       <div className="posts">
         <div style={{ width: '500px', margin: '0 auto', textAlign: 'center' }}>
-          <h1 style={{ borderBottom: '2px solid blue', display: 'inline-block', paddingBottom: '5px' }}>Bienvenido usuario</h1>
+          <h1 style={{ borderBottom: '2px solid blue', display: 'inline-block', paddingBottom: '5px' }}>Bienvenido {user ? user.gmail : "Usuario"}</h1>
+          <h2>Rol: {getRol()}</h2> {/* Aquí se muestra el rol del usuario */}
         </div>
+        
         <Mapa posts={parqueaderos} />
         <div className="parqueaderos">
           {parqueaderos.map((parqueadero) => (

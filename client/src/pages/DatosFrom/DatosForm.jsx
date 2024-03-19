@@ -7,37 +7,36 @@ import "react-datepicker/dist/react-datepicker.css";
 // import "../../assets/posts.css";//../../assets/posts.css
 import PortalLayout from "../../layout/PortalLayout";
 import Footer from "../../components/Footer";
+import { useAuth } from "../../Autenticacion/AutProvider";
 
 
 const Posts = () => {
   const navigate = useNavigate();
+  const auth = useAuth(); // Obtener el contexto de autenticación
   const [posts, setPosts] = useState([]);
 
-  const [selectedPuestos, setSelectedPuestos] = useState(0);
-  
- 
-
-  const fetchPosts = async () => {
-    const userId = "...";
-
-    try {
-      const res = await axios.get(`${config.apiUrl}?userId=${userId}`);
-      setPosts(res.data);
-      if (res.data.length > 0) {
-        setSelectedPuestos(res.data[0].puestos);
-      }
-    } catch (error) {
-      console.error("Error al obtener los mensajes:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const userId = "..."; // Reemplazar con la lógica para obtener el userId
+        const response = await fetch(`${config.apiUrl}?userId=${userId}`, {
+          headers: {
+            Authorization: `Bearer ${auth.getAccessToken()}` // Agregar el token de autorización al encabezado
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPosts(data);
+        } else {
+          console.error("Error al obtener los mensajes:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error al obtener los mensajes:", error);
+      }
+    };
+
     fetchPosts();
-  }, []);
-
-  
-
-  
+  }, [auth]);
 
   
 

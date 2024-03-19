@@ -55,7 +55,7 @@ const CalendarComponent = ({ parqueaderoId }) => {
         parqueaderoId: parqueaderoId
       };
 
-      const response = await axios.post('https://parking-0mw6.onrender.com/api/reserva', reservationData);
+      const response = await axios.post('http://localhost:5000/api/reserva', reservationData);
       console.log('Reserva creada:', response.data);
       showSuccessAlert();
       navigate("/reservas");
