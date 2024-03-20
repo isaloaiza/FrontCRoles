@@ -10,12 +10,29 @@ export default function Signup() {
   const [gmail, setGmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
-  const auth = useAuth();
+  const [isUsernameValid, setIsUsernameValid] = useState(true);
+  const [isGmailValid, setIsGmailValid] = useState(true);
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
 
+  const auth = useAuth();
   const goto = useNavigate();
 
-  async function handleSubmit(e: { preventDefault: () => void; }) {
-    
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    setIsUsernameValid(/^[a-zA-Z0-9]+$/.test(e.target.value));
+  };
+
+  const handleGmailChange = (e) => {
+    setGmail(e.target.value);
+    setIsGmailValid(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(e.target.value));
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    setIsPasswordValid(e.target.value.length >= 8);
+  };
+
+  async function handleSubmit(e) {
     e.preventDefault();
     try {
       const response = await fetch(`${API_URL}/signup`, {
@@ -23,20 +40,14 @@ export default function Signup() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          username,
-          gmail,
-          password,
-          role 
-        })
+        body: JSON.stringify({ username, gmail, password, role })
       });
-
       const json = await response.json();
       if (response.ok) {
         console.log("Rol del usuario:", role);
         console.log("El usuario se creó correctamente");
         setErrorResponse("");
-        goto("/Login"); // Redirigir al usuario a la página de inicio de sesión después de registrarse
+        goto("/Login");
       } else {
         console.log(role);
         console.log("Algo malo ocurrió :o");
@@ -47,6 +58,7 @@ export default function Signup() {
       setErrorResponse("Ocurrió un error al enviar la solicitud.");
     }
   }
+
   if (auth.esAutentico) {
     return <Navigate to="/dashboard" />;
   }
@@ -69,12 +81,32 @@ export default function Signup() {
                 <option value="cliente">Cliente</option>
               </select>
               <label>Nombre</label>
-              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+              <input
+                type="text"
+                value={username}
+                onChange={handleUsernameChange}
+                className={isUsernameValid ? '' : 'invalid'}
+              />
+              {!isUsernameValid && <div className="error-message">El nombre de usuario solo debe contener letras y números</div>}
               <label>Email</label>
-              <input type="email" value={gmail} onChange={(e) => setGmail(e.target.value)} />
+              <input
+                type="email"
+                value={gmail}
+                onChange={handleGmailChange}
+                className={isGmailValid ? '' : 'invalid'}
+              />
+              {!isGmailValid && <div className="error-message">Ingrese un correo electrónico válido</div>}
               <label>Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-              <button type="submit">Create Usuario</button>
+              <input
+                type="password"
+                value={password}
+                onChange={handlePasswordChange}
+                className={isPasswordValid ? '' : 'invalid'}
+              />
+              {!isPasswordValid && <div className="error-message">La contraseña debe tener al menos 8 caracteres</div>}
+              <button type="submit" disabled={!isUsernameValid || !isGmailValid || !isPasswordValid}>
+                Create Usuario
+              </button>
             </form>
           </div>
         </div>
