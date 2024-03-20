@@ -22,11 +22,11 @@ const Post = () => {
     latitud: '',
     longitud: '',
     puestos: '',
-    // const userId = req.userId;
+    userId: ''
     
   });
 
-  console.log(post);
+
 
   useEffect(() => {
     if (id !== "new") {
@@ -40,6 +40,8 @@ const Post = () => {
           if (response.ok) {
             const data = await response.json();
             setPost(data);
+            const userId = data.userId;
+            console.log("el usuario es"+userId);
           } else {
             console.error("Error al obtener el parqueadero:", response.statusText);
             navigate("/error");
