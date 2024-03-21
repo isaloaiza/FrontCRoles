@@ -126,9 +126,9 @@ const Post = () => {
   return (
     <PortalLayout>
       <div class="DatosParqueadero">
-        <div class="form">
+        <div class="form1">
           <form action="#">
-            <div class="form-header">
+            <div class="form-header1">
               <div class="title">
                 <h2>{id === 'new' ? 'Nuevo Parqueadero' : 'Actualizar Parqueadero'}</h2>
               </div>
@@ -141,7 +141,7 @@ const Post = () => {
               <div class="input-box">
                 <label for="firstname">Nombre parqueadero</label>
                 <input type="text" id="title" placeholder="Ej: parquedero nuevaVista..." name="title"
-                  value={post.title} onChange={handleChange} className="form-control" />
+                  value={post.title} onChange={handleChange} className="form-control2" />
               </div>
 
               <div class="input-box">

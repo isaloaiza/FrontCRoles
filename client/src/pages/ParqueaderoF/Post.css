@@ -1,29 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Open+Sans:wght@300;400;500;600&display=swap');
 
-
-.container {
-    width: 50%;
-    height: 80vh;
+.DatosParqueadero {
+    width: 100%;
+    height: 60vh;
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 columnas de ancho flexible */
     gap: 1rem; /* Espacio entre las columnas */
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.212);
 }
 
-.form-image {
-    width: 50%;
-    
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-}
 
-.form-image img {
-    width: 31rem;
-}
-
-.form {
-    width: 60%;
+.form1 {
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -32,11 +20,9 @@
     background-color: #fff;
     padding: 3rem 24px 40px;
     color: #000000;
-    
-    
 }
 
-.form-header {
+.form-header1 {
     margin-bottom: 3rem;
     display: flex;
     justify-content: space-between;
@@ -62,7 +48,7 @@
 .login-button button a {
     text-decoration: none;
     font-weight: 500;
-    color: #000000;
+    color: #ffffff; /* Cambiado a blanco para contrastar mejor */
 }
 
 .form-header h1::after {
@@ -77,11 +63,10 @@
 }
 
 .input-group {
-    display: flex;
+    display: flex; /* Corregido de 'wra' a 'flex' */
     flex-wrap: wrap;
     justify-content: space-between;
     padding: 1rem 0;
-   
 }
 
 .input-box {
@@ -89,7 +74,6 @@
     flex-direction: column;
     margin-bottom: 1.1rem;
 }
-
 
 .input-box input {
     margin: 0.6rem 0;
@@ -101,7 +85,7 @@
     color: #000000;
 }
 
-.input-box textarea{
+.input-box textarea {
     margin: 0.6rem 0;
     padding: 0.8rem 1.2rem;
     border: none;
@@ -124,7 +108,7 @@
 .gender-title h6 {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #000000c0;
+    color: #000000; /* Cambiado de #000000c0 a #000000 */
 }
 
 .input-box input::placeholder {
@@ -150,7 +134,7 @@
 .gender-input label {
     font-size: 0.81rem;
     font-weight: 600;
-    color: #000000c0;
+    color: #000000; /* Cambiado de #000000c0 a #000000 */
 }
 
 .continue-button button {

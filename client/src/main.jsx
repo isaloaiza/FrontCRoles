@@ -17,6 +17,7 @@ import PostInfo from '../src/pages/DatosFrom/PostsInfo';
 import Explicacion from '../src/routes/Explicacion';
 import Reservas from '../src/routes/Reservas';
 import ReservasUser from './routes/ReservaUser.JSX';
+import ExplicacionUser from './routes/ExplicacionUser';
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/explicacion",
     element: <Explicacion />
+  },
+  {
+    path: "/explicacionUser",
+    element: <ExplicacionUser />
   },
   {
     path: "/reservas",

@@ -43,7 +43,7 @@ const Reservas = () => {
   const handleDelete = async (reservaId) => {
     try {
       const accessToken = auth.getAccessToken(); // Obtener el token de acceso del contexto de autenticación
-      await axios.delete(`http://localhost:5000/api/reserva/${reservaId}`, {
+      await axios.delete(`https://rolescambios.onrender.com/api/reserva/${reservaId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }

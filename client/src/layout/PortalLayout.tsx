@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { API_URL } from "../Autenticacion/constanst";
-import { useAuth } from "../Autenticacion/AutProvider";
-
+import { useAuth } from '../Autenticacion/AutProvider';
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
-  const [role, setRole] = useState<string | undefined>(undefined);
-  const [, setErrorResponse] = useState<string>("");
+  const { getRol, getAccessToken, getRefreshToken, signOut } = useAuth();
+  const [role, setRole] = useState<string | null>(null); // Estado para almacenar el rol
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUserRole() {
       try {
-        const userRole = await auth.getRol();
-        setRole(userRole);
+        const userRole = await getRol(); // Llamar a la función para obtener el rol
+        console.log("El rol es " + userRole);
+        setRole(userRole || null); // Asignar null si userRole es undefined
       } catch (error) {
-        setErrorResponse("Ocurrió un error al obtener el rol del usuario.");
+        setError("Ocurrió un error al obtener el rol del usuario.");
       }
     }
 
     fetchUserRole();
-  }, [auth]);
+  }, [getRol]);
 
   async function handleSignOut(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -29,16 +30,19 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.getRefreshToken()}`
+          Authorization: `Bearer ${getAccessToken()}`
         }
       });
 
       if (response.ok) {
-        auth.signOut();
+        signOut();
         window.location.href = "/";
+      } else {
+        setError("Error al cerrar sesión. Inténtelo de nuevo.");
       }
     } catch (error) {
       console.error(error);
+      setError("Error al cerrar sesión. Inténtelo de nuevo.");
     }
   }
 
@@ -52,24 +56,32 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         </div>
         <nav>
           <ul>
-            <li>
+            {/* <li>
               <Link to="/Perfil">Perfil</Link>
-            </li>
+            </li> */}
+            {role === "usuario" && ( 
             <li>
               <Link to="/Dashboard">Mapa navegación</Link>
             </li>
+            )}
+            {role === "cliente" && ( 
             <li>
               <Link to="/Posts">Creación parqueadero</Link>
             </li>
-            <li>
-                  <Link to="/reservas">Historial Reservas</Link>
-            </li>
-            <li>
+            )}
+            {role === "usuario" && ( 
+              <li>
+                <Link to="/ExplicacionUser">¿Como Funciona?</Link>
+              </li>
+               )}
+                {role === "cliente" && ( 
+               <li>
                 <Link to="/Explicacion">¿Como Funciona?</Link>
               </li>
+              )}
             <li>
               <div>
-                <button  onClick={handleSignOut}>Salir</button>
+                <button className="p-14 hover:text-blue-500" onClick={handleSignOut}>Salir</button>
               </div>
             </li>
             {role && (
@@ -81,8 +93,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         </nav>
       </header>
 
+      {error && <div className="error-message">{error}</div>}
+
       <main>{children}</main>
     </>
   );
 }
-
