@@ -5,10 +5,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './Post.css';
 import config from '../../config.json';
 import PortalLayout from '../../layout/PortalLayout';
+import { useAuth } from '../../Autenticacion/AutProvider';
 
 const Post = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const auth = useAuth(); // Obtener el contexto de autenticación
   const [post, setPost] = useState({
     title: '',
     content: '',
@@ -19,15 +21,30 @@ const Post = () => {
     nosotros: '',
     latitud: '',
     longitud: '',
-    puestos: ''
+    puestos: '',
+    userId: ''
   });
+
+
 
   useEffect(() => {
     if (id !== "new") {
       const fetchPost = async () => {
         try {
-          const { data } = await axios.get(`${config.apiUrl}/${id}`);
-          setPost(data);
+          const response = await fetch(`${config.apiUrl}/${id}`, {
+            headers: {
+              Authorization: `Bearer ${auth.getAccessToken()}` // Agregar el token de autorización al encabezado
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setPost(data);
+            const userId = data.userId;
+            console.log("el usuario es"+userId);
+          } else {
+            console.error("Error al obtener el parqueadero:", response.statusText);
+            navigate("/error");
+          }
         } catch (error) {
           console.error("Error al obtener el parqueadero:", error);
           navigate("/error");
@@ -35,7 +52,7 @@ const Post = () => {
       };
       fetchPost();
     }
-  }, [id, navigate]);
+  }, [id, navigate, auth]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,7 +63,7 @@ const Post = () => {
     e.preventDefault();
 
     // Validación de campos requeridos
-    const { title, content,horarios, tarifaCarro, tarifaMoto,  telefono, nosotros,  latitud, longitud, puestos } = post;
+    const { title, content, horarios, tarifaCarro, tarifaMoto, telefono, nosotros, latitud, longitud, puestos } = post;
     if (!title || !content || !horarios || !tarifaCarro || !tarifaMoto || !telefono || !nosotros || !latitud || !longitud || !puestos) {
       alert('Por favor completa todos los campos obligatorios.');
       return;
@@ -67,36 +84,51 @@ const Post = () => {
 
     // Envío del formulario si todas las validaciones son exitosas
     try {
-      if (id === "new") {
-        await axios.post(config.apiUrl, post);
+      const requestOptions = {
+        method: id === "new" ? 'POST' : 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.getAccessToken()}` // Agregar el token de autorización al encabezado
+        },
+        body: JSON.stringify(post)
+      };
+
+      const response = await fetch(id === "new" ? config.apiUrl : `${config.apiUrl}/${id}`, requestOptions);
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'La reserva se guardó correctamente'
+        }).then((result) => {
+          if (result.isConfirmed || result.isDismissed) {
+            navigate("/Posts");
+          }
+        });
       } else {
-        await axios.put(`${config.apiUrl}/${id}`, post);
+        const data = await response.json();
+        console.error("Error al guardar la reserva:", data);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Los datos están duplicados o no coinciden'
+        });
       }
-      Swal.fire({
-        icon: 'success',
-        title: '¡Éxito!',
-        text: 'La reserva se guardó correctamente'
-      }).then((result) => {
-        if (result.isConfirmed || result.isDismissed) {
-          navigate("/Posts");
-        }
-      });
     } catch (error) {
       console.error("Error al guardar la reserva:", error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'los datos estan duplicados o ya no coincide con los datos'
+        text: 'Ocurrió un error al guardar la reserva'
       });
     }
-  };
+  }
 
   return (
     <PortalLayout>
       <div class="DatosParqueadero">
-        <div class="form">
+        <div class="form1">
           <form action="#">
-            <div class="form-header">
+            <div class="form-header1">
               <div class="title">
                 <h2>{id === 'new' ? 'Nuevo Parqueadero' : 'Actualizar Parqueadero'}</h2>
               </div>
@@ -109,7 +141,7 @@ const Post = () => {
               <div class="input-box">
                 <label for="firstname">Nombre parqueadero</label>
                 <input type="text" id="title" placeholder="Ej: parquedero nuevaVista..." name="title"
-                  value={post.title} onChange={handleChange} className="form-control" />
+                  value={post.title} onChange={handleChange} className="form-control2" />
               </div>
 
               <div class="input-box">

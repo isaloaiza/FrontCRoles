@@ -1,187 +1,197 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import type { AccessTokenResponse, AuthResponse, Parqueadero, User } from "../types/types";
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-empty-function */
+import React, { useContext, createContext, useState, useEffect } from "react";
+import type { AccessTokenResponse, AuthResponse, User  } from "../types/types";
 import { API_URL } from "../Autenticacion/constanst";
 
-// Definir el tipo de contexto extendido
-interface ExtendedAuthContext {
-  esAutentico: boolean;
-  getAccessToken: () => string;
-  saveUser: (userData: AuthResponse) => void;
-  getRefreshToken: () => string | null;
-  getUser: () => User | undefined;
-  signOut: () => void;
-  getParqueadero: () => Parqueadero | undefined;
-  saveParqueadero: (parqueaderoData: Parqueadero) => void;
+interface AuthContextType {
+    esAutentico: boolean;
+    getAccessToken: () => void;
+    saveUser: (_userData: AuthResponse) => void;
+    getRefreshToken: () => void;
+    getUser: () => User | undefined;
+    signOut: () => void;
+    getRol: () => string | undefined;
 }
 
-// Crear el contexto de autenticación
-export const AuthContext = createContext<ExtendedAuthContext>({
-  esAutentico: false,
-  getAccessToken: () => "",
-  saveUser: (_userData: AuthResponse) => {},
-  getRefreshToken: () => "",
-  getUser: () => undefined,
-  signOut: () => {},
-  getParqueadero: () => undefined,
-  saveParqueadero: (_parqueaderoData: Parqueadero) => {},
+interface AuthProviderProps {
+    children: React.ReactNode;
+}
+
+const AuthContext = createContext<AuthContextType>({
+    esAutentico: false,
+    getAccessToken: () => {},
+    saveUser: (_userData: AuthResponse) => {},
+    getRefreshToken: () => {},
+    getUser: () => undefined,
+    signOut: () => {},
+    getRol: () => undefined,
 });
 
-// Componente proveedor de autenticación
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [esAutentico, setEsAutentico] = useState(false);
-  const [accessToken, setAccessToken] = useState<string>("");
-  const [user, setUser] = useState<User | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [parqueadero, setParqueadero] = useState<Parqueadero | undefined>();
+export function AuthProvider({ children }: AuthProviderProps) {
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+    const [esAutentico, setEsAutentico] = useState(false);
+    const [accessToken, setAccessToken] = useState<string>();
+    const [user, setUser] = useState<User>();
+    const [isLoading,setIsLoading]=useState(true);
+    const [role, setRol] = useState<string>();
 
-  async function requestNewAccessToken(refreshToken: string) {
-    try {
-      const response = await fetch(`${API_URL}/refresh-token`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
+    useEffect(() => {
+        checkAuth();
+    }, []);
 
-      if (response.ok) {
-        const json = await response.json() as AccessTokenResponse;
+    async function requestNewAccessToken(refreshToken: string) {
+        try {
+            const response = await fetch(`${API_URL}/refresh-token`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${refreshToken}`
+                }
+            });
 
-        if (json.error) {
-          throw new Error(json.error);
+            if (response.ok) {
+                const json = await response.json() as AccessTokenResponse;
+
+                if (json.error) {
+                    throw new Error(json.error);
+                }
+                return json.body.accesToken;
+            } else {
+                throw new Error(response.statusText);
+            }
+        } catch (error) {
+            console.error('Error al solicitar un nuevo token de acceso:', error);
+            return null;
         }
-        return json.body.accessToken;
-      } else {
-        throw new Error(response.statusText);
-      }
-    } catch (error) {
-      console.log(error);
-      return null;
     }
-  }
+    
+    async function getUserInfo(accessToken: string) {
+        try {
+            const response = await fetch(`${API_URL}/user`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
 
-  async function getUserInfo(accessToken: string) {
-    try {
-      const response = await fetch(`${API_URL}/user`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
+            if (response.ok) {
+                const json = await response.json();
 
-        if (json.error) {
-          throw new Error(json.error);
+                if (json.error) {
+                    throw new Error(json.error);
+                }
+                return json.body;
+            } else {
+                throw new Error(response.statusText);
+            }
+        } catch (error) {
+            console.error('Error al obtener información del usuario:', error);
+            return null;
         }
-        return json.body;
-      } else {
-        throw new Error(response.statusText);
-      }
-    } catch (error) {
-      console.log(error);
-      return null;
     }
-  }
+    
 
-  async function getParqueaderoInfo(accessToken: string) {
-    try {
-      const response = await fetch(`${API_URL}/parqueadero`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const json = await response.json();
-
-        if (json.error) {
-          throw new Error(json.error);
+    async function checkAuth() {
+        try {
+            const accessToken = localStorage.getItem("accessToken");
+            const refreshToken = localStorage.getItem("refreshToken");
+    
+            if (accessToken) {
+                const userInfo = await getUserInfo(accessToken);
+                if (userInfo) {
+                    saveSessionInfo(userInfo, accessToken, refreshToken!);
+                    setIsLoading(false);
+                    return;
+                }
+            } else if (refreshToken) {
+                const newAccessToken = await requestNewAccessToken(refreshToken);
+                if (newAccessToken) {
+                    const userInfo = await getUserInfo(newAccessToken);
+                    if (userInfo) {
+                        saveSessionInfo(userInfo, newAccessToken, refreshToken);
+                        setIsLoading(false);
+                        return;
+                    }
+                }
+            }
+            setIsLoading(false);
+        } catch (error) {
+            console.error('Error en la verificación de autenticación:', error);
+            setIsLoading(false);
         }
-        return json.body;
-      } else {
-        throw new Error(response.statusText);
-      }
-    } catch (error) {
-      console.log(error);
-      return null;
     }
-  }
+    
+    function signOut(){
+        setEsAutentico(false);
+        setAccessToken("");
+        setUser(undefined);
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+    }
+    
+    function saveSessionInfo(userInfo: User, accessToken: string, refreshToken: string) {
+        setAccessToken(accessToken);
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        setEsAutentico(true);
+        setUser(userInfo);
+        setRol(userInfo.role);
+    }
+    
+    function getRol() {
+        return role;
+    }
 
-  async function checkAuth() {
-    const storedRefreshToken = getRefreshToken();
-    if (storedRefreshToken) {
-      const newAccessToken = await requestNewAccessToken(storedRefreshToken);
-      if (newAccessToken) {
-        const userInfo = await getUserInfo(newAccessToken);
-        if (userInfo) {
-          saveSessionInfo(userInfo.user, newAccessToken, storedRefreshToken, userInfo.role);
-          const parqueaderoInfo = await getParqueaderoInfo(newAccessToken);
-          if (parqueaderoInfo) {
-            saveParqueadero(parqueaderoInfo);
-          }
+    function getAccessToken() {
+        return accessToken;
+    }
+
+    function getRefreshToken(): string | null {
+        const tokenData = localStorage.getItem("Token");
+        if(tokenData){
+            const token = JSON.parse(tokenData);
+            return token;
         }
-      }
+        return null;
     }
-    setIsLoading(false);
-  }
 
-  function signOut() {
-    setEsAutentico(false);
-    setAccessToken("");
-    setUser(undefined);
-    setParqueadero(undefined);
-    localStorage.removeItem("token");
-  }
+    function saveUser(userData: AuthResponse) {
+        saveSessionInfo(
+            userData.body.user, 
+            userData.body.accessToken, 
+            userData.body.refreshToken
+        );
+    }
 
-  function saveSessionInfo(userInfo: User, accessToken: string, refreshToken: string, role: string) {
-    setAccessToken(accessToken);
-    localStorage.setItem('token', JSON.stringify(refreshToken));
-    setEsAutentico(true);
-    setUser({ ...userInfo, role });
-  }
+    function getUser(){
+        return user;
+    }
 
-  function getAccessToken() {
-    return accessToken;
-  }
+    useEffect(() => {
+        console.log("Datos del usuario:", user);
+    }, [user]);
 
-  function getRefreshToken(): string | null {
-    return localStorage.getItem("token");
-  }
-
-  function saveUser(userData: AuthResponse) {
-    saveSessionInfo(
-      userData.body.user,
-      userData.body.accessToken,
-      userData.body.refreshToken,
-      userData.body.user.role
+    return (
+        <AuthContext.Provider value={{ esAutentico, getAccessToken, saveUser, getRefreshToken, getUser, signOut, getRol }}>
+            {isLoading?  
+                <div className="spinner-container relative w-full md:h-screen p-4 text-white h-unset flex justify-center items-center Z-10">
+                    <div style={{display:'flex', alignItems:'center'}} className="Z-10">
+                        <img src="../../../../public/images/logoMulti.png" 
+                            className="logo scale-x-[-1] filter invert "
+                            alt="" />
+                        <h1 style={{marginLeft:'-100px', fontSize:100,marginTop:30}}>ultiServicios</h1>
+                    </div>
+                    <div className="spinner"></div>
+                    <h1 style={{padding:20, fontSize:30}}>Loading...</h1>
+                </div>
+            : 
+                children
+            }
+        </AuthContext.Provider>
     );
-  }
-
-  function saveParqueadero(parqueaderoData: Parqueadero): void {
-    setParqueadero(parqueaderoData);
-  }
-
-  function getParqueadero() {
-    return parqueadero;
-  }
-
-  function getUser() {
-    return user;
-  }
-
-  return (
-    <AuthContext.Provider value={{ esAutentico, getAccessToken, saveUser, getRefreshToken, getUser, signOut, getParqueadero, saveParqueadero }}>
-      {isLoading ? <div>Cargando...</div> : children}
-    </AuthContext.Provider>
-  );
 }
 
-// Hook personalizado para acceder al contexto de autenticación
-export const useAuth = () => useContext(AuthContext) as ExtendedAuthContext;
+export const useAuth = () => useContext(AuthContext);

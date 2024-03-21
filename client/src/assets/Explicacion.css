@@ -1,0 +1,99 @@
+/* Estilos base */
+.explicacion-container {
+    margin-top: 80px;
+  }
+  
+  h1 {
+    font-size: 24px;
+    color: #333;
+  }
+  
+  ol {
+    list-style-type: none;
+    counter-reset: step-counter;
+  }
+  
+  .explicacion-container .steps-container li {
+    counter-increment: step-counter;
+    margin-bottom: 10px;
+  }
+  
+  .explicacion-container .steps-container li:before {
+    content: counter(step-counter);
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+  }
+  
+  .explicacion-container .steps-container a {
+    color: #007bff; /* Estilo para los enlaces dentro de .steps-container */
+    text-decoration: none;
+  }
+  
+  .explicacion-container .steps-container a:hover {
+    text-decoration: underline;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Estilos para la estructura de la explicación */
+  .explicacion-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center; /* Centra los elementos horizontalmente */
+    padding: 0 20px; /* Agrega un espacio en los laterales */
+  }
+  
+  .steps-container {
+    flex: 1; /* Toma el espacio restante */
+    margin-left: 100px;
+  }
+  
+  .image-container {
+    margin-left: 100px; /* Reduce el espacio entre los pasos y la imagen */
+  }
+  
+  .image-container img {
+    max-width: 100%; /* Ajusta el tamaño máximo de la imagen */
+    height: auto; /* Mantiene la proporción de aspecto de la imagen */
+    display: block; /* Para que la imagen no tenga espacio adicional debajo */
+  }
+  
+  /* Consultas de medios para hacer que el diseño sea receptivo */
+  
+  /* Para pantallas de hasta 768px */
+  @media only screen and (max-width: 768px) {
+    .explicacion-container {
+      flex-direction: column;
+      align-items: center; /* Centra los elementos verticalmente */
+    }
+  
+    .steps-container {
+      margin-left: 0;
+      margin-bottom: 20px; /* Agrega espacio entre los pasos y la imagen en dispositivos móviles */
+    }
+  
+    .image-container {
+      margin-left: 0;
+    }
+  }
+  

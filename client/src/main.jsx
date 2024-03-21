@@ -1,44 +1,90 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import  ReactDOM  from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './index.css';
 import Login from '../src/routes/Login';
 import Signup from '../src/routes/signup'; 
 import Dashboard from '../src/routes/dashboard'; 
+import ProtectedRoute from '../src/routes/protectedRaute'; 
 import { AuthProvider } from '../src/Autenticacion/AutProvider'; 
 import Home from '../src/components/Home';
 import Perfil from '../src/routes/perfil';
 import ContactUs from '../src/routes/contactUs';
 
-import Post from './pages/ParqueaderoF/ParqueaderoForm';
-import Posts from './pages/DatosFrom/DatosForm';//./pages/posts/Posts
+import Post from '../src/pages/ParqueaderoF/ParqueaderoForm';
+import Posts from '../src/pages/DatosFrom/DatosForm';
+import PostInfo from '../src/pages/DatosFrom/PostsInfo';
+import Explicacion from '../src/routes/Explicacion';
+import Reservas from '../src/routes/Reservas';
+import ReservasUser from './routes/ReservaUser.JSX';
+import ExplicacionUser from './routes/ExplicacionUser';
 
-import PostInfo from './pages/DatosFrom/PostsInfo';//./pages/posts/PostsInfo
-
-import Reservas from '../src/routes/Reservas';//./routes/Reservas
-
-
-
-const App = () => {
-  return (
+const router = createBrowserRouter([
+  {
+    path: "/Login",
+    element: <Login/>
+  },
+  {
+    path: "/signup",
+    element: <Signup/>
+  },
+  {
+    path: "/",
+    element: <Home/>
+  },
+  {
+    path:"/posts",
+    element:<Posts />
+  },
+  {
+    path:"/post/:id",
+    element: <Post />
+  },
+  {
+    path: "/post/:id/info",
+    element: <PostInfo />
+  },
+  {
+    path: "/explicacion",
+    element: <Explicacion />
+  },
+  {
+    path: "/explicacionUser",
+    element: <ExplicacionUser />
+  },
+  {
+    path: "/reservas",
+    element: <Reservas />
+  },
+  {
+    path: "/reservasUser",
+    element: <ReservasUser />
+  },
+  {
+    path: "/perfil",
+    element: <Perfil />
+  },
+  {
+    path: "/contactUs",
+    element: <ContactUs />
+  },
+  {
+    path: "/",
+    element: <ProtectedRoute/>,
+    children:[
+      {
+        path: "/dashboard",
+        element: <Dashboard/>
+      }
+      
+    ]
+  },
+])
+ReactDOM.createRoot(document.getElementById('root') ).render(
+  <React.StrictMode>
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/Login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/posts" element={<Posts />} />
-          <Route path="/post/:id" element={<Post />} />
-          <Route path="/post/:id/info" element={<PostInfo />} />
-          <Route path="/reservas" element={<Reservas />} />
-        
-          <Route path="/" element={<Home />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/contactUs" element={<ContactUs />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </Router>
+      <RouterProvider router={router}/>
     </AuthProvider>
-  );
-};
+  </React.StrictMode>,
+)
 
-createRoot(document.getElementById('root')).render(<App />);

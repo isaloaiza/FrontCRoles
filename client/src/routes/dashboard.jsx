@@ -9,58 +9,109 @@ import { useAuth } from '../Autenticacion/AutProvider';
 import Modal from 'react-modal';
 import CalendarComponent from './calendarComponent';
 import Footer from "../components/Footer";
+import { FcInfo, FcFinePrint } from "react-icons/fc";
 
 
 const Dashboard = () => {
-  const { getUser } = useAuth();
+  const {  getRol } = useAuth();
+  const auth = useAuth();
   const [parqueaderos, setParqueaderos] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParqueaderoId, setSelectedParqueaderoId] = useState(null);
-  const auth = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetchParqueaderos();
-  }, []);
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get(config.apiUrl, {
+          headers: {
+            Authorization: `Bearer ${auth.getAccessToken()}`
+          }
+        });
+        if (response.status === 200) {
+          setParqueaderos(response.data);
+        } else {
+          console.error("Error al obtener los posts:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error al obtener los posts:", error);
+      }
+    };
 
-  const fetchParqueaderos = async () => {
-    try {
-      const res = await axios.get(config.apiUrl);
-      setParqueaderos(res.data);
-    } catch (error) {
-      console.error("Error fetching parqueaderos:", error);
-    }
-  };
+    fetchPosts();
+  }, [auth]);
+
 
   const handleReservarClick = (parqueaderoId) => {
     setSelectedParqueaderoId(parqueaderoId);
     setModalOpen(true);
   };
 
+  // Filtrar parqueaderos según el término de búsqueda
+  const filteredParqueaderos = parqueaderos.filter(parqueadero => {
+    return parqueadero.title.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+
+  
+
   return (
     <PortalLayout>
       <div className="posts">
         <div style={{ width: '500px', margin: '0 auto', textAlign: 'center' }}>
-          <h1 style={{ borderBottom: '2px solid blue', display: 'inline-block', paddingBottom: '5px' }}>Bienvenido usuario</h1>
+          <h1 style={{ borderBottom: '2px solid blue', display: 'inline-block', paddingBottom: '5px' }}>Bienvenido {getRol()}</h1>
+          {/* Campo de búsqueda */}
+          {/* <h2>Rol: {getRol()}</h2> */}
+          {/* <h2> {auth.getUser() ? auth.getUser().id : ""}</h2> */}
         </div>
-        <Mapa posts={parqueaderos} />
+        <Mapa posts={filteredParqueaderos} />
+
+        <div className="table__header">
+          <h1>Parqueaderos</h1>
+          <div className="input-group">
+            <input type="search" className="burcasor" placeholder="Busca Parqueaderos..." value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}/>
+          </div>
+
+        </div>
+       
+      
         <div className="parqueaderos">
-          {parqueaderos.map((parqueadero) => (
-            <div key={parqueadero._id} className="card">
-              <h2>{parqueadero.title}</h2>
-              <p>{parqueadero.content}</p>
-              <p>Puestos disponibles: {parqueadero.puestos}</p>
-              <div style={{ marginLeft: "69px"}}>
 
-              <Link to={`/post/${parqueadero._id}/info`} >
-                <img src="https://images.vexels.com/media/users/3/154623/isolated/preview/ec9ca7f0d84780221389129e7adaccf1-icono-de-contacto-de-burbuja-de-discurso-de-informacion.png" alt="" className="whatsapp"/>
-              </Link>
-              <Link onClick={() => handleReservarClick(parqueadero._id)} >
-                <img src="https://cdn-icons-png.flaticon.com/512/2907/2907150.png" alt="" className="whatsapp"/>
-              </Link>
+        
+          {filteredParqueaderos.map((parqueadero) => (
+           <div className="card" key={parqueadero._id}>
+           <div className="card-header">
+             <p>{parqueadero.content}</p>
+             <span className="title">{parqueadero.title}</span>
+           </div>
+           <div className="card-author">
+             <a className="author-avatar" href="#">
+               <span>
+             </span></a>
+             <svg className="half-circle" viewBox="0 0 106 57">
+               <path d="M102 4c0 27.1-21.9 49-49 49S4 31.1 4 4"></path>
+             </svg>
+             <div className="author-name">
+               <div className="author-name-prefix">Puestos disponibles: {parqueadero.puestos}</div> {parqueadero.horarios}
+               </div>
+             </div>
+             <div className="tags">
+            
+              <Link to={`/post/${parqueadero._id}/info`} > 
+              <FcInfo /> info
+                           </Link>
 
-              </div>
               
-            </div>
+               <Link onClick={() => handleReservarClick(parqueadero._id)} >
+               <FcFinePrint /> reserva
+                           </Link>
+
+            
+                
+             
+             </div>
+           </div>
           ))}
         </div>
         {/* Modal para reservar */}
@@ -71,9 +122,10 @@ const Dashboard = () => {
           className="custom-modal-content"
           overlayClassName="custom-modal-overlay"
         >
-          <button onClick={() => setModalOpen(false)} className="modal-boton"> Cerrar</button>
+          {/* <button onClick={() => setModalOpen(false)} className="modal-boton"> Cerrar</button> */}
           <CalendarComponent parqueaderoId={selectedParqueaderoId} onClose={() => setModalOpen(false)} />
         </Modal>
+
       </div>
       <Footer />
     </PortalLayout>
