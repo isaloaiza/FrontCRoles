@@ -23,7 +23,6 @@ const Post = () => {
     longitud: '',
     puestos: '',
     userId: ''
-    
   });
 
 

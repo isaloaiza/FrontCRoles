@@ -4,6 +4,8 @@ import { useState } from "react";
 import { API_URL } from "../Autenticacion/constanst";
 import type { AuthResponse, AuthResponseError } from "../types/types";
 import React from "react";
+import DefaultLayout from "../layout/DefaultLayout";
+import Footer from "../components/Footer";
 
 
 export default function Login() {
@@ -32,7 +34,7 @@ export default function Login() {
         const json = (await response.json()) as AuthResponse;
 
         if (json.body.accessToken && json.body.refreshToken) {
-          const guardar = auth.saveUser(json);
+         auth.saveUser(json);
          
           goto("/dashboard");
         }
@@ -53,9 +55,67 @@ export default function Login() {
   }
 
   return (
-    <>
+    
+
+<DefaultLayout>
+      <div className="form-box">
+        <div className="wrapper">
+          <div className="left">
+          <div className="registration-info">
+            <div className="title-regis">
+              <h1>Bienvenido a <span className="span">ParkingLocation</span></h1>
+
+            </div>
+            <div className="regisP">
+              <p>Accede a nuestra plataforma y disfrutar de servicios de estacionamiento convenientes y seguros.</p>
+
+            </div>
+            <div className="regislink">
+              <p className="login-link">¿Aún no tienes cuenta? <a href="/signup">Registrate aquí</a></p>
+
+            </div>
+          </div>
+
+          </div>
+          <div className="right">
+
+          <div className="form-area">
+            <form className="formLogin" onSubmit={handleSubmit}>
+              <div className="formTitle">
+                <h2 className="form-title">Iniciar sesión</h2>
+
+              </div>
+              {!!errorResponse && <div className="errorMessage">{errorResponse}</div>}
+              <div className="inputs">
+
+                <input
+                  type="email"
+                  value={gmail}
+                  onChange={(e) => setGmail(e.target.value)}
+                  placeholder="Correo...."
+                  className="log-input"></input>
+
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Contraseña...."
+                  className="log-input"></input>
+              </div>
+              <button className="crear">Acceder</button>
+            </form>
+          </div>
+          </div>
+        </div>
+        <div className='air air1'></div>
+        <div className='air air2'></div>
+        <div className='air air3'></div>
+        <div className='air air4'></div>
+      </div>
+      <Footer />
+    </DefaultLayout>
       
-      <section className="relative w-full md:h-screen p-4 text-white h-unset flex justify-center items-center">
+      /* <section className="relative w-full md:h-screen p-4 text-white h-unset flex justify-center items-center">
         <div className="flex flex-col max-w-screen-lg mx-auto relative z-10">
           <div className="pb-0">
             <h2 className="text-4xl font-bold inline border-b-4 border-blue-600 border-opacity-40 sm:text-5xl">Iniciar Sesión</h2>
@@ -107,7 +167,7 @@ export default function Login() {
             <p>¿No tienes una cuenta? <a href="/signup" className="text-blue-600">Registrarse</a></p>
           </div>
         </div>
-      </section>
-    </>
+      </section> */
+    
   );
 }

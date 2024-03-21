@@ -5,36 +5,56 @@ import { Link } from "react-router-dom";
 import { Button } from 'reactstrap';
 import PortalLayout from "../layout/PortalLayout";
 import Footer from "../components/Footer";
+import puestos from '../puestos.json'
+import { useAuth } from "../Autenticacion/AutProvider";
+import '../pages/DatosFrom/info.css'
 
 
 
 const Reservas = () => {
   const navigate = useNavigate();
   const [reservas, setReservas] = useState([]);
-
-  const fetchReservas = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/reserva");
-      setReservas(res.data);
-    } catch (error) {
-      console.error("Error fetching reservas:", error);
-    }
-  };
+  const auth = useAuth(); // Obtener el contexto de autenticación
 
   useEffect(() => {
-    fetchReservas();
-  }, []);
+    const fetchReserva = async () => {
+      try {
+        const response = await fetch(`${puestos.apiUrl}`, {
+          headers: {
+            Authorization: `Bearer ${auth.getAccessToken()}` // Agregar el token de autorización al encabezado
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const filteredPosts = data.filter(reserva => reserva.userId === auth.getUser().id);
+          
+          setReservas(filteredPosts);
+        } else {
+          console.error("Error al obtener los mensajes:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error al obtener los mensajes:", error);
+      }
+    };
+
+    fetchReserva();
+  }, [auth]);
 
   const handleDelete = async (reservaId) => {
     try {
-      await axios.delete(`https://parking-0mw6.onrender.com/api/reserva/${reservaId}`);
+      const accessToken = auth.getAccessToken(); // Obtener el token de acceso del contexto de autenticación
+      await axios.delete(`http://localhost:5000/api/reserva/${reservaId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
       // Actualizar la lista de reservas después de la eliminación
-      fetchReservas();
+      fetchReserva(); // Aquí corregimos el nombre de la función a fetchReserva
     } catch (error) {
       console.error("Error deleting reserva:", error);
     }
-
   };
+  
 
   let codigoPais = '57'; // Código de país
     
@@ -53,10 +73,11 @@ const Reservas = () => {
         <Button color="primary">Regresar</Button>
       </Link>
      
-      
-      <table className="table">
+      <section class="table__body">
+      <table >
         <thead>
           <tr >
+           
             <th>Fecha</th>              
             <th>Tiempo</th>
             <th>Nombre</th>             
@@ -64,6 +85,8 @@ const Reservas = () => {
             <th>Placa</th>
             <th>Eliminar</th>
             <th>Enviar mensaje</th>
+        
+
            
           </tr>
         </thead>
@@ -75,6 +98,8 @@ const Reservas = () => {
               <td> {reserva.nombre} </td>
               <td className="numeroW">{reserva.telefono}</td> 
               <td> {reserva.placa} </td>
+         
+              
 
              
               
@@ -85,7 +110,7 @@ const Reservas = () => {
                   }}
                   className="btn btn-danger"
                 >
-                  cancelar reserva
+                  salida de vehiculo
                 </button>
               </td>
               <td>
@@ -95,6 +120,9 @@ const Reservas = () => {
           ))}
         </tbody>
       </table>
+
+      </section>
+    
     </div>
   </div>
 

@@ -62,8 +62,14 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               <Link to="/Posts">Creación parqueadero</Link>
             </li>
             <li>
+                  <Link to="/reservas">Historial Reservas</Link>
+            </li>
+            <li>
+                <Link to="/Explicacion">¿Como Funciona?</Link>
+              </li>
+            <li>
               <div>
-                <button className="p-14 hover:text-blue-500" onClick={handleSignOut}>Salir</button>
+                <button  onClick={handleSignOut}>Salir</button>
               </div>
             </li>
             {role && (

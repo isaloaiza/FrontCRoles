@@ -26,41 +26,47 @@ const ContactUs = () => {
 
   return (
     <DefaultLayout>
-    <div className="contacto">
-     
-    <div className="box-info">
-        <h1>CONTÁCTATE CON NOSOTROS</h1>
-        <div className="data">
-            <p><FaPhone />   +57 323 588 8007</p>
-            <p> <RiMailFill/>   parkinlocation750@gmail.com</p>
-        </div>
-        <div className="links">
-            <a href="#"><FaFacebook /></a>
-            <a href="#"><BsInstagram/></a>
-            <a href="#"><RiTwitterXFill/></a>
-            <a href="#"><BsLinkedin /></a>
-        </div>
-    </div>
-    <form onSubmit={handleSubmit}>
-        <div className="input-box">
-         <input name="username" type="text" placeholder="ej: Maria Luisa" required  />
-             
-            
-        </div>
-        <div className="input-box">
-            <input type="email" placeholder="ej marialuisaalonso850@gmail.com" name="email" required />
-            <i className="fa-solid fa-envelope"></i>
-        </div>
-        <div className="input-box">
-            <textarea maxLength={500} placeholder="Escribe tu mensaje" name="message" id="" cols={30} rows={10}></textarea>
-        </div>
-        <button type="submit">Enviar mensaje</button>
-    </form>
-   
-</div>
+            <div className="Ccontainer">
 
-<Footer />
-</DefaultLayout>
+                <div className="contacto">
+
+                    <div className="box-info">
+                        <h1 className="title">¡CONTÁCTATE CON NOSOTROS!</h1>
+                        <div className="data">
+                            <p className="data1"><FaPhone />   +57 314 844 8537</p>
+                            <p className="data1"> <RiMailFill />   parkinlocation750@gmail.com</p>
+                        </div>
+                        <div className="links">
+                            <a href="#"><FaFacebook /></a>
+                            <a href="#"><BsInstagram /></a>
+                            <a href="#"><RiTwitterXFill /></a>
+                            <a href="#"><BsLinkedin /></a>
+                        </div>
+                    </div>
+                    <form onSubmit={handleSubmit} className="Cform">
+                        <div className="send">
+                            <div className="input-box">
+                                <input name="username" type="text" placeholder="Nombre:" required />
+
+
+                            </div>
+                            <div className="input-box">
+                                <input type="email" placeholder="Email:" name="email" required />
+                                <i className="fa-solid fa-envelope"></i>
+                            </div>
+                            <div className="input-box">
+                                <textarea maxLength={500} placeholder="¡Envíanos un mensaje!" name="message" id="" cols={30} rows={10}></textarea>
+                            </div>
+                            <button type="submit" className="crear">Enviar</button>
+
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+            <Footer />
+        </DefaultLayout>
   );
 };
 

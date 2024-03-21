@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Swal from "sweetalert2";
+import { useAuth } from "../Autenticacion/AutProvider"; // Importar el contexto de autenticación
 
 const CalendarComponent = ({ parqueaderoId }) => {
   const navigate = useNavigate();
+  const auth = useAuth(); // Obtener el contexto de autenticación
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [nombre, setNombre] = useState('');
@@ -52,13 +54,18 @@ const CalendarComponent = ({ parqueaderoId }) => {
         correo: correo,
         placa: placa,
         telefono: telefono,
-        parqueaderoId: parqueaderoId
+        parqueaderoId: parqueaderoId,
+        userId:'',
       };
 
-      const response = await axios.post('http://localhost:5000/api/reserva', reservationData);
+      const response = await axios.post('http://localhost:5000/api/reserva', reservationData, {
+        headers: {
+          Authorization: `Bearer ${auth.getAccessToken()}` // Incluir el token de autorización en el encabezado
+        }
+      });
       console.log('Reserva creada:', response.data);
       showSuccessAlert();
-      navigate("/reservas");
+      navigate("/reservasUser");
     } catch (error) {
       console.error('Error creating reservation:', error);
       const errorMessage = error.response && error.response.data ? error.response.data.message : 'Error al crear la reserva. Por favor, inténtalo de nuevo más tarde.';

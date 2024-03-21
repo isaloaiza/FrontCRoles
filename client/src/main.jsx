@@ -14,8 +14,9 @@ import ContactUs from '../src/routes/contactUs';
 import Post from '../src/pages/ParqueaderoF/ParqueaderoForm';
 import Posts from '../src/pages/DatosFrom/DatosForm';
 import PostInfo from '../src/pages/DatosFrom/PostsInfo';
-
+import Explicacion from '../src/routes/Explicacion';
 import Reservas from '../src/routes/Reservas';
+import ReservasUser from './routes/ReservaUser.JSX';
 
 const router = createBrowserRouter([
   {
@@ -43,8 +44,16 @@ const router = createBrowserRouter([
     element: <PostInfo />
   },
   {
+    path: "/explicacion",
+    element: <Explicacion />
+  },
+  {
     path: "/reservas",
     element: <Reservas />
+  },
+  {
+    path: "/reservasUser",
+    element: <ReservasUser />
   },
   {
     path: "/perfil",
